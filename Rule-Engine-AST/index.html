@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rule Engine UI</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, textarea { width: 100%; padding: 8px; }
+        button { padding: 10px 15px; background-color: #007BFF; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .output { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Rule Engine UI</h1>
+
+        <!-- Create Rule Form -->
+        <div class="form-group">
+            <label for="createRuleString">Create Rule:</label>
+            <input type="text" id="createRuleString" placeholder="Enter rule string">
+            <button onclick="createRule()">Create Rule</button>
+        </div>
+
+        <!-- Combine Rules Form -->
+        <div class="form-group">
+            <label for="combineRuleIds">Combine Rules (comma-separated IDs):</label>
+            <input type="text" id="combineRuleIds" placeholder="Enter rule IDs">
+            <button onclick="combineRules()">Combine Rules</button>
+        </div>
+
+        <!-- Evaluate Rule Form -->
+        <div class="form-group">
+            <label for="evaluateRuleId">Evaluate Rule ID:</label>
+            <input type="text" id="evaluateRuleId" placeholder="Enter rule ID">
+            <label for="evaluateData">Data (JSON):</label>
+            <textarea id="evaluateData" rows="4" placeholder='{"age": 35, "department": "Sales"}'></textarea>
+            <button onclick="evaluateRule()">Evaluate Rule</button>
+        </div>
+
+        <!-- Modify Rule Form -->
+        <div class="form-group">
+            <label for="modifyRuleId">Modify Rule ID:</label>
+            <input type="text" id="modifyRuleId" placeholder="Enter rule ID">
+            <label for="newRuleString">New Rule String:</label>
+            <input type="text" id="newRuleString" placeholder="Enter new rule string">
+            <button onclick="modifyRule()">Modify Rule</button>
+        </div>
+
+        <!-- Output -->
+        <div class="output" id="output"></div>
+    </div>
+
+    <script>
+        const BASE_URL = "http://127.0.0.1:5000";
+
+        function createRule() {
+            const ruleString = document.getElementById('createRuleString').value;
+            fetch(`${BASE_URL}/create_rule`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rule_string: ruleString })
+            })
+            .then(response => response.json())
+            .then(data => document.getElementById('output').innerText = `Create Rule Response: ${JSON.stringify(data)}`)
+            .catch(error => console.error('Error:', error));
+        }
+
+        function combineRules() {
+            const ruleIds = document.getElementById('combineRuleIds').value.split(',').map(id => parseInt(id.trim()));
+            fetch(`${BASE_URL}/combine_rules`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rule_ids: ruleIds })
+            })
+            .then(response => response.json())
+            .then(data => document.getElementById('output').innerText = `Combine Rules Response: ${JSON.stringify(data)}`)
+            .catch(error => console.error('Error:', error));
+        }
+
+        function evaluateRule() {
+            const ruleId = parseInt(document.getElementById('evaluateRuleId').value);
+            const data = JSON.parse(document.getElementById('evaluateData').value);
+            fetch(`${BASE_URL}/evaluate_rule`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rule_id: ruleId, data: data })
+            })
+            .then(response => response.json())
+            .then(data => document.getElementById('output').innerText = `Evaluate Rule Response: ${JSON.stringify(data)}`)
+            .catch(error => console.error('Error:', error));
+        }
+
+        function modifyRule() {
+            const ruleId = parseInt(document.getElementById('modifyRuleId').value);
+            const newRuleString = document.getElementById('newRuleString').value;
+            fetch(`${BASE_URL}/modify_rule`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rule_id: ruleId, new_rule_string: newRuleString })
+            })
+            .then(response => response.json())
+            .then(data => document.getElementById('output').innerText = `Modify Rule Response: ${JSON.stringify(data)}`)
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
